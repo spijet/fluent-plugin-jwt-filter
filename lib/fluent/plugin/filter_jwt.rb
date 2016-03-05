@@ -15,8 +15,8 @@ module Fluent
   #   "tag": "nbWyhG82A-eCJMvdhbrSJw"
   # }
   class JwtFilter < Filter
-    # Register this formatter as "jwt"
-    Plugin.register_formatter("jwt", self)
+    # Register this filter as "jwt"
+    Plugin.register_filter("jwt", self)
 
     config_param :method, :string, :default => "encrypt"
     config_param :jwk_file, :string, :default => "key"
