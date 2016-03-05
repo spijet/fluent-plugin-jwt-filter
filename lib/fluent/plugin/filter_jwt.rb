@@ -79,7 +79,7 @@ module Fluent
         # encryption
         jwe.encrypt!(@jwk_pub.to_key)
         # output the result in JSON format
-        jwe.as_json.to_json
+        jwe.as_json
       rescue Exception => e
         $log.error "Error", :error => e.to_s
         $log.debug_backtrace(e.backtrace)
