@@ -2,6 +2,8 @@
 
 Fluent Filter plugin for encrypting and decrypting messages using JSON Web Token technology (JSON Web Encryption, JSON Web Signature and JSON Web Key). This plugin uses [json-jwt](https://github.com/nov/json-jwt) to encrypt/decrypt messages.
 
+in_secure_forward and out_secure_forward can support encryption and authentication between fluentd instances. However, if a user intends to share their data via third party data broker like [EverySense](http://every-sense.com/en/), they may wants to encrypt their data end-to-end fashion. fluent-plugin-jwt-filter can support end-to-end (from fluentd to fluentd) encryption.
+
 ## Installation
 
 Add this line to your application's Gemfile:
