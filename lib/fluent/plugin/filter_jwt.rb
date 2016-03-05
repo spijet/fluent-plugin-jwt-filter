@@ -7,13 +7,18 @@ module Fluent
   # Currently symmetric key is not supported in JSON Web Key (TODO)
   #
   # Example encrypted JSON message is as follows:
-  # {
-  #   "protected": "eyJlbmMiOiJBMTI4R0NNIiwiYWxnIjoiUlNBMV81In0",
-  #   "encrypted_key": "P8dKW8KE5nJm7s9GDENrcSW2iNw0Fo4FqDxRwyr6JSGCPCwjc_agoEq7O8xhWX_WoRZin90ORPP1oO5_kavTIcppnRcmquxm1jhQtKk77-HN9Efo7DQf3yfgdnD7xv-M1I_rCPeHVFm33BNB6TIhCo1fUfhEUM8GjjC8PLFFwOcDUNf1vw1-WjUqMhUf-b45s6CHhYdpDqzs7GYuovDo0LMeFeBSc4Xntw_vWPMeHxsuVyuZpDHUQm-dX5wnmQ4UhZPzEhkkVJw1oz2uTMjcl6mi1bucKGy1zNaGN-JEhg5_2QgijqTxRtJgOBlVtHLJ5HABT4tI6-v06M3dPryz5w",
-  #   "iv": "xYk2s_39pHvLBZy3",
-  #   "ciphertext": "taCQAMBZtKgQfh5LaWs",
-  #   "tag": "nbWyhG82A-eCJMvdhbrSJw"
+  # {"jwe_encrypted":
+  #   {
+  #     "protected": "eyJlbmMiOiJBMTI4R0NNIiwiYWxnIjoiUlNBMV81In0",
+  #     "encrypted_key": "P8dKW8KE5nJm7s9GDENrcSW2iNw0Fo4FqDxRwyr6JSGCPCwjc_agoEq7O8xhWX_WoRZin90ORPP1oO5_kavTIcppnRcmquxm1jhQtKk77-HN9Efo7DQf3yfgdnD7xv-M1I_rCPeHVFm33BNB6TIhCo1fUfhEUM8GjjC8PLFFwOcDUNf1vw1-WjUqMhUf-b45s6CHhYdpDqzs7GYuovDo0LMeFeBSc4Xntw_vWPMeHxsuVyuZpDHUQm-dX5wnmQ4UhZPzEhkkVJw1oz2uTMjcl6mi1bucKGy1zNaGN-JEhg5_2QgijqTxRtJgOBlVtHLJ5HABT4tI6-v06M3dPryz5w",
+  #     "iv": "xYk2s_39pHvLBZy3",
+  #     "ciphertext": "taCQAMBZtKgQfh5LaWs",
+  #     "tag": "nbWyhG82A-eCJMvdhbrSJw"
+  #   }
   # }
+  #
+  # If some attributes added to the contents during the transfer,
+  # the decrypted contents are merged into the modified hash.
   class JwtFilter < Filter
     # Register this filter as "jwt"
     Plugin.register_filter("jwt", self)
@@ -79,7 +84,9 @@ module Fluent
         # encryption
         jwe.encrypt!(@jwk_pub.to_key)
         # output the result in JSON format
-        jwe.as_json
+        output = {jwe_encrypted: jwe.as_json}
+        $log.debug output
+        output
       rescue Exception => e
         $log.error "Error", :error => e.to_s
         $log.debug_backtrace(e.backtrace)
@@ -89,9 +96,12 @@ module Fluent
     def decrypt(record)
       begin
         # decrypt JSON format cipher data
-        jwe_dec = JSON::JWE.decode_json_serialized(record, @jwk.to_key)
+        jwe_dec = JSON::JWE.decode_json_serialized(record["jwe_encrypted"], @jwk.to_key)
         $log.debug jwe_dec.plain_text
-        JSON.parse(jwe_dec.plain_text)
+        # merge decrypted contents into original contents without jwe_encrypted
+        output = record.select {|k| k != "jwe_encrypted"}.merge(JSON.parse(jwe_dec.plain_text))
+        $log.debug output
+        output
       rescue JSON::ParserError => e
         $log.error "Message parse error", :error => e.to_s
         $log.debug_backtrace(e.backtrace)
