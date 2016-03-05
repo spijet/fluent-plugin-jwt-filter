@@ -89,7 +89,7 @@ module Fluent
     def decrypt(record)
       begin
         # decrypt JSON format cipher data
-        jwe_dec = JSON::JWE.decode_json_serialized(JSON.parse(text), @jwk.to_key)
+        jwe_dec = JSON::JWE.decode_json_serialized(record, @jwk.to_key)
         $log.debug jwe_dec.plain_text
         JSON.parse(jwe_dec.plain_text)
       rescue JSON::ParserError => e
