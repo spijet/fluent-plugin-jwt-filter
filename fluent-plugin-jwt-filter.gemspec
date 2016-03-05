@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "fluent-plugin-jwt-filter"
-  spec.version       = "0.0.1"
+  spec.version       = "0.0.2"
   spec.authors       = ["Toyokazu Akiyama"]
   spec.email         = ["toyokazu@gmail.com"]
 
   spec.summary       = %q{Fluent Filter plugin for encrypting and decrypting messages using JSON Web Token technology (JSON Web Encryption, JSON Web Signature and JSON Web Key)}
   spec.description   = %q{Fluent Filter plugin for encrypting and decrypting messages using JSON Web Token technology (JSON Web Encryption, JSON Web Signature and JSON Web Key)}
-  spec.homepage      = "https://github.com/toyokazu/fluent-plugin-jwt-formatter"
+  spec.homepage      = "https://github.com/toyokazu/fluent-plugin-jwt-filter"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.gsub(/images\/[\w\.]+\n/, "").split($/)
