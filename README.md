@@ -1,2 +1,3 @@
 # fluent-plugin-jwt-filter
-Fluent Filter plugin for JSON Web Token  (JSON Web Encryption and JSON Web Signature using JSON Web Key)
+
+Fluent Filter plugin for encrypting and decrypting messages using JSON Web Token technology (JSON Web Encryption, JSON Web Signature and JSON Web Key)
