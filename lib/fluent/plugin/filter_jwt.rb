@@ -71,7 +71,7 @@ module Fluent
     def encrypt(record)
       begin
         # encrypt JSON format record
-        jwe_enc = JSON::JWE.new(record.to_json)
+        jwe = JSON::JWE.new(record.to_json)
         # choose block cipher algorithm
         jwe.enc = @block_cipher_alg.to_sym
         # choose cipher algorithm for encrypting block cipher key (symmetric cipher key)
