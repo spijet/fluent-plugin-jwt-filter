@@ -1,5 +1,5 @@
 require 'json/jwt'
-module Fluent
+module Fluent::Plugin
   # JwtFilter
   # Encrypt/Decript JSON message using JSON Web Token Technology
   # For encryption, JSON Web Key (public) is used
@@ -21,7 +21,7 @@ module Fluent
   # the decrypted contents are merged into the modified hash.
   class JwtFilter < Filter
     # Register this filter as "jwt"
-    Plugin.register_filter("jwt", self)
+    Fluent::Plugin.register_filter("jwt", self)
 
     config_param :method, :string, :default => "encrypt"
     config_param :jwk_file, :string, :default => "key"
@@ -30,7 +30,7 @@ module Fluent
     config_param :key_encryption_alg, :string, :default => "RSA1_5"
 
     def not_supported_error
-      $log.error "JwtFilter: Not supported method is specified"
+      log.error "JwtFilter: Not supported method is specified"
     end
 
     # This method is called after config_params have read configuration parameters
@@ -48,8 +48,8 @@ module Fluent
           not_supported_error
         end
       rescue JSON::ParserError => e
-        $log.error "JSON Web Key parse error", :error => e.to_s
-        $log.debug_backtrace(e.backtrace)
+        log.error "JSON Web Key parse error", error: e.to_s
+        log.debug_backtrace(e.backtrace)
       end
     end
 
@@ -85,11 +85,11 @@ module Fluent
         jwe.encrypt!(@jwk_pub.to_key)
         # output the result in JSON format
         output = {jwe_encrypted: jwe.as_json}
-        $log.debug output
+        log.debug output
         output
       rescue Exception => e
-        $log.error "Error", :error => e.to_s
-        $log.debug_backtrace(e.backtrace)
+        log.error "Error", error: e.to_s
+        log.debug_backtrace(e.backtrace)
       end
     end
 
@@ -97,17 +97,17 @@ module Fluent
       begin
         # decrypt JSON format cipher data
         jwe_dec = JSON::JWE.decode_json_serialized(record["jwe_encrypted"], @jwk.to_key)
-        $log.debug jwe_dec.plain_text
+        log.debug jwe_dec.plain_text
         # merge decrypted contents into original contents without jwe_encrypted
         output = record.select {|k| k != "jwe_encrypted"}.merge(JSON.parse(jwe_dec.plain_text))
-        $log.debug output
+        log.debug output
         output
       rescue JSON::ParserError => e
-        $log.error "Message parse error", :error => e.to_s
-        $log.debug_backtrace(e.backtrace)
+        log.error "Message parse error", error: e.to_s
+        log.debug_backtrace(e.backtrace)
       rescue Exception => e
-        $log.error "Error", :error => e.to_s
-        $log.debug_backtrace(e.backtrace)
+        log.error "Error", error: e.to_s
+        log.debug_backtrace(e.backtrace)
       end
     end
   end

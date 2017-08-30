@@ -93,5 +93,6 @@ For decryption, the following options are available.
 
     <filter test>
       @type jwt
+      method decrypt
       jwk_file fluent/key
     </filter>
