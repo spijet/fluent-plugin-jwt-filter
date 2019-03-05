@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
 
   spec.add_dependency 'fluentd', '~> 0.14.0'
-  spec.add_runtime_dependency 'json-jwt', '>= 1.7.1'
+  spec.add_runtime_dependency 'jwt', '>= 2.1.0'
 
   spec.add_development_dependency 'bundler', '~> 1.14'
   spec.add_development_dependency 'rake', '~> 12.0'
