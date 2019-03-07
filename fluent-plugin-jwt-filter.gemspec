@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Fluent JSON Web Token Filter plugin'
   spec.description   = 'Fluent Filter plugin for (un)packing messages using JSON Web Token technology, based on the "jwt" library'
   spec.homepage      = 'https://github.com/spijet/fluent-plugin-jwt-filter'
-  spec.license       = 'Apache License Version 2.0'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = `git ls-files`.gsub(%r{images\/[\w\.]+\n}, '').split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
