@@ -13,25 +13,26 @@ module Fluent
       # Register this filter as "jwt"
       Fluent::Plugin.register_filter('jwt', self)
 
-      params = { up: { m: %i[field merge replace record], v: %i[no mark warn] },
-                 pc: { m: %i[record fields one_field] } }
+      PARAMS = { up: { m: %i[field merge replace record], v: %i[no mark warn] },
+                 pc: { m: %i[record fields one_field] } }.freeze
 
-      supported_hmacs = %i[HS256 HS384 HS512]
+      HMACS = %i[HS256 HS384 HS512].freeze
+      JWT_R = %r{^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$}.freeze
 
       # Common params
       config_param :mode, :enum, list: %i[pack unpack]
       config_param :secret, :string, default: nil, secret: true
 
       # Unpacking options
-      config_param :unpack_mode, :enum, list: params[:up][:m], default: :field
+      config_param :unpack_mode, :enum, list: PARAMS[:up][:m], default: :field
       config_param :unpack_from_field, :string, default: 'jwt'
       config_param :unpack_to_field, :string, default: 'jwt_unpacked'
       config_param :unpack_fields, :array, default: [], value_type: :string
-      config_param :unpack_verify, :enum, list: params[:up][:v], default: :no
+      config_param :unpack_verify, :enum, list: PARAMS[:up][:v], default: :no
 
       # Packing options
-      config_param :pack_hmac, :enum, list: supported_hmacs, default: :HS256
-      config_param :pack_mode, :enum, list: params[:pc][:m], default: :record
+      config_param :pack_hmac, :enum, list: HMACS, default: :HS256
+      config_param :pack_mode, :enum, list: PARAMS[:pc][:m], default: :record
       config_param :pack_fields, :array, default: [], value_type: :string
       config_param :pack_from_field, :string, default: nil
       config_param :pack_to_field, :string, default: 'jwt_packed'
@@ -153,7 +154,10 @@ module Fluent
       end
 
       def unpack(record)
+        # Skip records that don't have the field we want...
         return record unless record.key? @unpack_from_field
+        # ... and also skip ones which don't look like a JWT:
+        return record unless record[@unpack_from_field].match? JWT_R
 
         msg_raw = record[@unpack_from_field]
         log.debug format('JwtFilter: This is what I got from the message ' \
