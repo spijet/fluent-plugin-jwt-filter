@@ -153,6 +153,8 @@ module Fluent
       end
 
       def unpack(record)
+        return record unless record.key? @unpack_from_field
+
         msg_raw = record[@unpack_from_field]
         log.debug format('JwtFilter: This is what I got from the message ' \
                          '[field "%<field>s"]: "%<msg>s".',
